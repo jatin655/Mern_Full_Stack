@@ -1,25 +1,28 @@
 import { MongoClient } from 'mongodb';
 
 const uri = process.env.MONGODB_URI;
-if (!uri) {
-  throw new Error('Please define the MONGODB_URI environment variable in .env.local');
-}
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (process.env.NODE_ENV !== 'production') {
-  // @ts-ignore
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri);
-    // @ts-ignore
-    global._mongoClientPromise = client.connect();
-  }
-  // @ts-ignore
-  clientPromise = global._mongoClientPromise;
+if (!uri) {
+  console.warn('MONGODB_URI environment variable is not set. Some features may not work.');
+  // Create a dummy promise that rejects to prevent crashes
+  clientPromise = Promise.reject(new Error('MONGODB_URI not configured'));
 } else {
-  client = new MongoClient(uri);
-  clientPromise = client.connect();
+  if (process.env.NODE_ENV !== 'production') {
+    // @ts-ignore
+    if (!global._mongoClientPromise) {
+      client = new MongoClient(uri);
+      // @ts-ignore
+      global._mongoClientPromise = client.connect();
+    }
+    // @ts-ignore
+    clientPromise = global._mongoClientPromise;
+  } else {
+    client = new MongoClient(uri);
+    clientPromise = client.connect();
+  }
 }
 
 export default clientPromise; 

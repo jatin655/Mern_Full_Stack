@@ -1,3 +1,4 @@
+import { sendPasswordResetEmail } from '@/lib/email';
 import clientPromise from '@/lib/mongodb';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
@@ -45,16 +46,14 @@ export async function POST(request: NextRequest) {
     // Create reset URL
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
 
-    // In a real application, you would send an email here
-    // For now, we'll just log the reset URL
-    console.log('Password reset URL:', resetUrl);
-
-    // TODO: Implement actual email sending
-    // You can use services like:
-    // - Nodemailer with SMTP
-    // - SendGrid
-    // - Resend
-    // - AWS SES
+    // Send password reset email using Resend
+    try {
+      await sendPasswordResetEmail(email, resetUrl);
+      console.log('Password reset email sent to:', email);
+    } catch (emailError) {
+      console.error('Failed to send email:', emailError);
+      // Still return success to user for security (don't reveal if email failed)
+    }
 
     return NextResponse.json(
       { message: 'If an account with that email exists, a password reset link has been sent.' },
