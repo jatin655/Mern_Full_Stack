@@ -1,25 +1,31 @@
-import { Resend } from 'resend';
+import formData from 'form-data';
+import Mailgun from 'mailgun.js';
 
-let resend: Resend | null = null;
+let mailgun: Mailgun | null = null;
+let mg: any = null;
 
-// Initialize Resend only if API key is available
-if (process.env.RESEND_API_KEY) {
-  resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Mailgun only if API key is available
+if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
+  mailgun = new Mailgun(formData);
+  mg = mailgun.client({
+    username: 'api',
+    key: process.env.MAILGUN_API_KEY,
+  });
 }
 
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
   try {
-    if (!resend) {
-      throw new Error('RESEND_API_KEY environment variable is required for email functionality');
+    if (!mg) {
+      throw new Error('MAILGUN_API_KEY and MAILGUN_DOMAIN environment variables are required for email functionality');
     }
 
     console.log('=== Email Sending Debug ===');
     console.log('Email to:', email);
     console.log('Reset URL:', resetUrl);
-    console.log('From address:', process.env.EMAIL_FROM || 'onboarding@resend.dev');
+    console.log('From domain:', process.env.MAILGUN_DOMAIN);
 
     const emailData = {
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+      from: `MERN Tutorial <noreply@${process.env.MAILGUN_DOMAIN}>`,
       to: email,
       subject: 'Password Reset Request - MERN Tutorial',
       html: `
@@ -68,22 +74,12 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
       `,
     };
 
-    console.log('Sending email via Resend...');
-    const { data, error } = await resend.emails.send(emailData);
+    console.log('Sending email via Mailgun...');
+    const result = await mg.messages.create(process.env.MAILGUN_DOMAIN!, emailData);
 
-    if (error) {
-      console.error('Resend error:', error);
-      
-      // Check if it's a domain verification error
-      if (error.message && error.message.includes('domain is not verified')) {
-        throw new Error('Domain not verified. Please verify your domain in Resend or use your own email address for testing.');
-      }
-      
-      throw new Error(`Failed to send email: ${error.message}`);
-    }
-
-    console.log('Email sent successfully via Resend!');
-    return data;
+    console.log('Email sent successfully via Mailgun!');
+    console.log('Message ID:', result.id);
+    return result;
   } catch (error) {
     console.error('Email sending error:', error);
     throw error;
