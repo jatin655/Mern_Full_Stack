@@ -52,7 +52,10 @@ export async function POST(request: NextRequest) {
       console.log('Password reset email sent to:', email);
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
-      // Still return success to user for security (don't reveal if email failed)
+      return NextResponse.json(
+        { error: 'Failed to send password reset email. Please try again later.' },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(

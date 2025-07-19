@@ -6,8 +6,19 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const { name, email, password } = await request.json();
+    
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json({ error: 'Password must be at least 6 characters long' }, { status: 400 });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
     const client = await clientPromise;
@@ -21,11 +32,11 @@ export async function POST(request: Request) {
     }
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const newUser: User = {
-      name,
-      email,
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
       password: hashedPassword,
       role: 'user',
       createdAt: new Date(),
@@ -33,8 +44,18 @@ export async function POST(request: Request) {
 
     await users.insertOne(newUser);
 
-    return NextResponse.json({ message: 'User registered successfully' });
+    return NextResponse.json({ 
+      message: 'User registered successfully',
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role
+      }
+    });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    console.error('Registration error:', error);
+    return NextResponse.json({ 
+      error: 'Internal server error. Please try again.' 
+    }, { status: 500 });
   }
 } 

@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
 
     // Get user statistics
     const totalUsers = allUsers.length;
-    const adminUsers = allUsers.filter(user => user.role === 'admin').length;
-    const regularUsers = allUsers.filter(user => user.role === 'user').length;
+    const adminUsers = allUsers.filter((user: any) => user.role === 'admin').length;
+    const regularUsers = allUsers.filter((user: any) => user.role === 'user').length;
 
     const stats = {
       total: totalUsers,
