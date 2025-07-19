@@ -48,14 +48,20 @@ export async function POST(request: NextRequest) {
 
     // Send password reset email using Resend
     try {
+      console.log('Attempting to send email to:', email);
+      console.log('Reset URL:', resetUrl);
+      console.log('Resend API Key configured:', !!process.env.RESEND_API_KEY);
+      console.log('Email From:', process.env.EMAIL_FROM);
+      
       await sendPasswordResetEmail(email, resetUrl);
-      console.log('Password reset email sent to:', email);
+      console.log('Password reset email sent successfully to:', email);
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
       
       // If it's a configuration error, still return success to user
       if (emailError instanceof Error && emailError.message.includes('RESEND_API_KEY')) {
         console.warn('Resend not configured - email functionality disabled');
+        console.log('For testing, reset URL is:', resetUrl);
         // Still return success to user for security (don't reveal if email failed)
       } else {
         return NextResponse.json(

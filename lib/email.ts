@@ -13,8 +13,13 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
       throw new Error('RESEND_API_KEY environment variable is required for email functionality');
     }
 
-    const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'noreply@yourdomain.com',
+    console.log('=== Email Sending Debug ===');
+    console.log('Email to:', email);
+    console.log('Reset URL:', resetUrl);
+    console.log('From address:', process.env.EMAIL_FROM || 'onboarding@resend.dev');
+
+    const emailData = {
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
       to: email,
       subject: 'Password Reset Request - MERN Tutorial',
       html: `
@@ -61,13 +66,23 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
           </div>
         </div>
       `,
-    });
+    };
+
+    console.log('Sending email via Resend...');
+    const { data, error } = await resend.emails.send(emailData);
 
     if (error) {
       console.error('Resend error:', error);
-      throw new Error('Failed to send email');
+      
+      // Check if it's a domain verification error
+      if (error.message && error.message.includes('domain is not verified')) {
+        throw new Error('Domain not verified. Please verify your domain in Resend or use your own email address for testing.');
+      }
+      
+      throw new Error(`Failed to send email: ${error.message}`);
     }
 
+    console.log('Email sent successfully via Resend!');
     return data;
   } catch (error) {
     console.error('Email sending error:', error);
