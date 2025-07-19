@@ -52,10 +52,17 @@ export async function POST(request: NextRequest) {
       console.log('Password reset email sent to:', email);
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
-      return NextResponse.json(
-        { error: 'Failed to send password reset email. Please try again later.' },
-        { status: 500 }
-      );
+      
+      // If it's a configuration error, still return success to user
+      if (emailError instanceof Error && emailError.message.includes('RESEND_API_KEY')) {
+        console.warn('Resend not configured - email functionality disabled');
+        // Still return success to user for security (don't reveal if email failed)
+      } else {
+        return NextResponse.json(
+          { error: 'Failed to send password reset email. Please try again later.' },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json(

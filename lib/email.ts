@@ -1,15 +1,18 @@
 import { Resend } from 'resend';
 
-const resendApiKey = process.env.RESEND_API_KEY;
+let resend: Resend | null = null;
 
-if (!resendApiKey) {
-  throw new Error('RESEND_API_KEY environment variable is required for email functionality');
+// Initialize Resend only if API key is available
+if (process.env.RESEND_API_KEY) {
+  resend = new Resend(process.env.RESEND_API_KEY);
 }
-
-const resend = new Resend(resendApiKey);
 
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
   try {
+    if (!resend) {
+      throw new Error('RESEND_API_KEY environment variable is required for email functionality');
+    }
+
     const { data, error } = await resend.emails.send({
       from: process.env.EMAIL_FROM || 'noreply@yourdomain.com',
       to: email,
