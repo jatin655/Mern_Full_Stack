@@ -1,76 +1,71 @@
-import formData from 'form-data';
-import Mailgun from 'mailgun.js';
 import { NextResponse } from 'next/server';
+import nodemailer from 'nodemailer';
 
 export async function GET() {
   try {
-    console.log('=== Mailgun Environment Check ===');
-    console.log('MAILGUN_API_KEY exists:', !!process.env.MAILGUN_API_KEY);
-    console.log('MAILGUN_DOMAIN exists:', !!process.env.MAILGUN_DOMAIN);
+    console.log('=== SMTP Environment Check ===');
+    console.log('MAILGUN_SMTP_USERNAME exists:', !!process.env.MAILGUN_SMTP_USERNAME);
+    console.log('MAILGUN_SMTP_PASSWORD exists:', !!process.env.MAILGUN_SMTP_PASSWORD);
     
-    if (process.env.MAILGUN_API_KEY) {
-      console.log('API Key starts with "key-":', process.env.MAILGUN_API_KEY.startsWith('key-'));
-      console.log('API Key length:', process.env.MAILGUN_API_KEY.length);
-      console.log('API Key first 10 chars:', process.env.MAILGUN_API_KEY.substring(0, 10));
-    }
-    
-    if (process.env.MAILGUN_DOMAIN) {
-      console.log('Domain contains "mailgun.org":', process.env.MAILGUN_DOMAIN.includes('mailgun.org'));
-      console.log('Full domain:', process.env.MAILGUN_DOMAIN);
+    if (process.env.MAILGUN_SMTP_USERNAME) {
+      console.log('SMTP Username:', process.env.MAILGUN_SMTP_USERNAME);
     }
 
-    // Test Mailgun initialization
-    if (!process.env.MAILGUN_API_KEY || !process.env.MAILGUN_DOMAIN) {
+    // Test SMTP initialization
+    if (!process.env.MAILGUN_SMTP_USERNAME || !process.env.MAILGUN_SMTP_PASSWORD) {
       return NextResponse.json({
-        error: 'Missing environment variables',
-        MAILGUN_API_KEY: !!process.env.MAILGUN_API_KEY,
-        MAILGUN_DOMAIN: !!process.env.MAILGUN_DOMAIN,
-        MAILGUN_API_KEY_value: process.env.MAILGUN_API_KEY ? 'Set' : 'Not Set',
-        MAILGUN_DOMAIN_value: process.env.MAILGUN_DOMAIN || 'Not Set'
+        error: 'Missing SMTP environment variables',
+        MAILGUN_SMTP_USERNAME: !!process.env.MAILGUN_SMTP_USERNAME,
+        MAILGUN_SMTP_PASSWORD: !!process.env.MAILGUN_SMTP_PASSWORD,
+        MAILGUN_SMTP_USERNAME_value: process.env.MAILGUN_SMTP_USERNAME || 'Not Set',
+        MAILGUN_SMTP_PASSWORD_value: process.env.MAILGUN_SMTP_PASSWORD ? 'Set' : 'Not Set'
       }, { status: 400 });
     }
 
-    const mailgun = new Mailgun(formData);
-    const mg = mailgun.client({
-      username: 'api',
-      key: process.env.MAILGUN_API_KEY,
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.mailgun.org',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.MAILGUN_SMTP_USERNAME,
+        pass: process.env.MAILGUN_SMTP_PASSWORD,
+      },
     });
 
-    // Test email sending to a real email (you can change this to your email)
+    // Test email sending
     const testEmailData = {
-      from: `Test <noreply@${process.env.MAILGUN_DOMAIN}>`,
+      from: `Test <${process.env.MAILGUN_SMTP_USERNAME}>`,
       to: 'sachdevajatin906@gmail.com', // Change this to your email for testing
-      subject: 'Mailgun Test Email - MERN Tutorial',
-      text: 'This is a test email to verify Mailgun configuration is working.',
+      subject: 'SMTP Test Email - MERN Tutorial',
+      text: 'This is a test email to verify SMTP configuration is working.',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2>Mailgun Test Email</h2>
-          <p>This is a test email to verify that Mailgun is properly configured.</p>
+          <h2>SMTP Test Email</h2>
+          <p>This is a test email to verify that SMTP is properly configured.</p>
           <p>If you receive this email, the email service is working correctly!</p>
           <p>Time sent: ${new Date().toISOString()}</p>
         </div>
       `
     };
 
-    console.log('Attempting to send test email...');
+    console.log('Attempting to send test email via SMTP...');
     console.log('From:', testEmailData.from);
     console.log('To:', testEmailData.to);
     console.log('Subject:', testEmailData.subject);
     
-    const result = await mg.messages.create(process.env.MAILGUN_DOMAIN, testEmailData);
+    const result = await transporter.sendMail(testEmailData);
 
-    console.log('Email sent successfully!');
-    console.log('Message ID:', result.id);
+    console.log('Email sent successfully via SMTP!');
+    console.log('Message ID:', result.messageId);
 
     return NextResponse.json({
       success: true,
-      message: 'Mailgun is properly configured and test email sent!',
-      messageId: result.id,
+      message: 'SMTP is properly configured and test email sent!',
+      messageId: result.messageId,
       environment: {
-        hasApiKey: !!process.env.MAILGUN_API_KEY,
-        hasDomain: !!process.env.MAILGUN_DOMAIN,
-        domain: process.env.MAILGUN_DOMAIN,
-        apiKeyFormat: process.env.MAILGUN_API_KEY?.startsWith('key-') ? 'Correct' : 'Incorrect'
+        hasUsername: !!process.env.MAILGUN_SMTP_USERNAME,
+        hasPassword: !!process.env.MAILGUN_SMTP_PASSWORD,
+        username: process.env.MAILGUN_SMTP_USERNAME
       },
       emailDetails: {
         from: testEmailData.from,
@@ -80,17 +75,16 @@ export async function GET() {
     });
 
   } catch (error: any) {
-    console.error('Mailgun test error:', error);
+    console.error('SMTP test error:', error);
     
     return NextResponse.json({
-      error: 'Mailgun test failed',
+      error: 'SMTP test failed',
       details: error.message,
       errorType: error.name,
       environment: {
-        hasApiKey: !!process.env.MAILGUN_API_KEY,
-        hasDomain: !!process.env.MAILGUN_DOMAIN,
-        domain: process.env.MAILGUN_DOMAIN,
-        apiKeyFormat: process.env.MAILGUN_API_KEY?.startsWith('key-') ? 'Correct' : 'Incorrect'
+        hasUsername: !!process.env.MAILGUN_SMTP_USERNAME,
+        hasPassword: !!process.env.MAILGUN_SMTP_PASSWORD,
+        username: process.env.MAILGUN_SMTP_USERNAME
       }
     }, { status: 500 });
   }

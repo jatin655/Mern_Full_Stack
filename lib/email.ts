@@ -1,15 +1,17 @@
-import formData from 'form-data';
-import Mailgun from 'mailgun.js';
+import nodemailer from 'nodemailer';
 
-let mailgun: Mailgun | null = null;
-let mg: any = null;
+let transporter: nodemailer.Transporter | null = null;
 
-// Initialize Mailgun only if API key is available
-if (process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN) {
-  mailgun = new Mailgun(formData);
-  mg = mailgun.client({
-    username: 'api',
-    key: process.env.MAILGUN_API_KEY,
+// Initialize SMTP transporter if credentials are available
+if (process.env.MAILGUN_SMTP_USERNAME && process.env.MAILGUN_SMTP_PASSWORD) {
+  transporter = nodemailer.createTransport({
+    host: 'smtp.mailgun.org',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: process.env.MAILGUN_SMTP_USERNAME,
+      pass: process.env.MAILGUN_SMTP_PASSWORD,
+    },
   });
 }
 
@@ -18,16 +20,16 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
     console.log('=== Email Sending Debug ===');
     console.log('Email to:', email);
     console.log('Reset URL:', resetUrl);
-    console.log('Mailgun available:', !!mg);
-    console.log('MAILGUN_API_KEY exists:', !!process.env.MAILGUN_API_KEY);
-    console.log('MAILGUN_DOMAIN exists:', !!process.env.MAILGUN_DOMAIN);
+    console.log('SMTP available:', !!transporter);
+    console.log('SMTP Username exists:', !!process.env.MAILGUN_SMTP_USERNAME);
+    console.log('SMTP Password exists:', !!process.env.MAILGUN_SMTP_PASSWORD);
 
-    // Try Mailgun first
-    if (mg) {
-      console.log('Attempting to send via Mailgun...');
+    // Try SMTP first
+    if (transporter) {
+      console.log('Attempting to send via SMTP...');
       
-      const emailData = {
-        from: `MERN Tutorial <noreply@${process.env.MAILGUN_DOMAIN}>`,
+      const mailOptions = {
+        from: `MERN Tutorial <${process.env.MAILGUN_SMTP_USERNAME}>`,
         to: email,
         subject: 'Password Reset Request - MERN Tutorial',
         html: `
@@ -76,10 +78,10 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
         `,
       };
 
-      const result = await mg.messages.create(process.env.MAILGUN_DOMAIN!, emailData);
-      console.log('Email sent successfully via Mailgun!');
-      console.log('Message ID:', result.id);
-      return result;
+      const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent successfully via SMTP!');
+      console.log('Message ID:', info.messageId);
+      return info;
     }
 
     // Fallback: Console log for testing
@@ -91,14 +93,14 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
     
     // Return a mock result for testing
     return {
-      id: 'console-fallback-' + Date.now(),
-      message: 'Email logged to console (Mailgun not configured)'
+      messageId: 'console-fallback-' + Date.now(),
+      message: 'Email logged to console (SMTP not configured)'
     };
 
   } catch (error) {
     console.error('Email sending error:', error);
     
-    // Even if Mailgun fails, log to console for testing
+    // Even if SMTP fails, log to console for testing
     console.log('=== EMAIL FALLBACK (Error Case) ===');
     console.log('To:', email);
     console.log('Subject: Password Reset Request - MERN Tutorial');
