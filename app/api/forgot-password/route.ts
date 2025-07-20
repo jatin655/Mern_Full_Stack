@@ -46,12 +46,12 @@ export async function POST(request: NextRequest) {
     // Create reset URL
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
 
-    // Send password reset email using Resend
+    // Send password reset email using Mailgun
     try {
       console.log('Attempting to send email to:', email);
       console.log('Reset URL:', resetUrl);
-      console.log('Resend API Key configured:', !!process.env.RESEND_API_KEY);
-      console.log('Email From:', process.env.EMAIL_FROM);
+      console.log('Mailgun API Key configured:', !!process.env.MAILGUN_API_KEY);
+      console.log('Mailgun Domain:', process.env.MAILGUN_DOMAIN);
       
       await sendPasswordResetEmail(email, resetUrl);
       console.log('Password reset email sent successfully to:', email);
@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
       console.error('Failed to send email:', emailError);
       
       // If it's a configuration error, still return success to user
-      if (emailError instanceof Error && emailError.message.includes('RESEND_API_KEY')) {
-        console.warn('Resend not configured - email functionality disabled');
+      if (emailError instanceof Error && emailError.message.includes('MAILGUN_API_KEY')) {
+        console.warn('Mailgun not configured - email functionality disabled');
         console.log('For testing, reset URL is:', resetUrl);
         // Still return success to user for security (don't reveal if email failed)
       } else {
