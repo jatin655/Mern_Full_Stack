@@ -5,7 +5,7 @@ import GooeyNav from "@/components/gooey-nav";
 import Particles from "@/components/particles-background";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { signIn, signOut, useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -68,39 +68,9 @@ export default function LoginPage() {
     return <div>Loading...</div>;
   }
 
-  if (session) {
-    return (
-      <div className="min-h-screen flex flex-col bg-black">
-        <header className="sticky top-0 z-50 w-full border-b bg-black/50 backdrop-blur supports-[backdrop-filter]:bg-black/40 border-white/10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between">
-              <div className="flex items-center">
-                <Link
-                  href="/"
-                  className="text-xl font-bold text-white hover:text-gray-300 transition-colors drop-shadow-2xl"
-                >
-                  MERN Tutorial
-                </Link>
-              </div>
-              <div className="hidden md:flex items-center">
-                <GooeyNav items={navLinks} initialActiveIndex={1} />
-              </div>
-              <div className="hidden md:flex items-center space-x-4">
-                <span className="text-white">{session.user?.email}</span>
-                <Button onClick={() => { signOut({ callbackUrl: '/login' }); }}>Sign Out</Button>
-              </div>
-            </div>
-          </div>
-        </header>
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-center text-white">
-            <h2 className="text-2xl font-bold mb-4">Welcome, {session.user?.name || session.user?.email}!</h2>
-            <Button onClick={() => { signOut({ callbackUrl: '/login' }); }}>Sign Out</Button>
-          </div>
-        </main>
-        <EnhancedFooter />
-      </div>
-    );
+  // If authenticated, don't render the login form (redirect will happen in useEffect)
+  if (status === 'authenticated') {
+    return null;
   }
 
   return (
