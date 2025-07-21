@@ -5,30 +5,26 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const isAuth = !!token;
-    const isAdmin = (token as any)?.role === 'admin';
     const path = req.nextUrl.pathname;
 
     // Only protect /dashboard and /admin
-    if (path.startsWith('/dashboard') || path.startsWith('/admin')) {
-      if (!isAuth) {
-        const loginUrl = new URL('/login', req.url);
-        loginUrl.searchParams.set('callbackUrl', path);
-        return NextResponse.redirect(loginUrl);
-      }
-      // If /admin, check for admin role
-      if (path.startsWith('/admin') && !isAdmin) {
-        return NextResponse.redirect(new URL('/dashboard', req.url));
-      }
+    if ((path.startsWith('/dashboard') || path.startsWith('/admin')) && !isAuth) {
+      const loginUrl = new URL('/login', req.url);
+      loginUrl.searchParams.set('callbackUrl', path);
+      return NextResponse.redirect(loginUrl);
     }
 
-    // Allow all other routes (/, /about, /login, /register, /forgot-password, /reset-password, /api/*, etc.)
+    // Only for /admin, check for admin role
+    if (path.startsWith('/admin') && isAuth && (token as any)?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
+    }
+
     return NextResponse.next();
   },
   {
     callbacks: {
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
-        // Only require auth for /dashboard and /admin
         if (path.startsWith('/dashboard') || path.startsWith('/admin')) {
           return !!token;
         }
