@@ -6,7 +6,7 @@ import SplitText from "@/components/SplitText";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import ClientAboutContent from "./about/components/ClientAboutContent";
-import SplineRobot from "./components/SplineRobot"; // Use relative path if needed
+// import SplineRobot from "./components/SplineRobot"; // Use relative path if needed
 
 export default function HomePage() {
   const navItems = [

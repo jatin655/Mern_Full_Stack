@@ -23,6 +23,7 @@ export default function RootLayout({
             type="module"
             src="https://unpkg.com/@splinetool/viewer@1.10.33/build/spline-viewer.js"
             strategy="afterInteractive"
+            crossOrigin="anonymous"
           />
         </ClientSessionProvider>
       </body>
