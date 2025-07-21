@@ -6,6 +6,7 @@ import SplitText from "@/components/SplitText";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import ClientAboutContent from "./about/components/ClientAboutContent";
+import SplineRobot from "./components/SplineRobot";
 // import SplineRobot from "./components/SplineRobot"; // Use relative path if needed
 
 export default function HomePage() {
@@ -113,7 +114,7 @@ export default function HomePage() {
 
         {/* Robot (fixed, not in flex flow) */}
         <div className="hidden lg:block w-[420px] h-[600px] fixed top-24 right-0 z-[100] pointer-events-none">
-          {/* <SplineRobot /> */}
+          <SplineRobot />
         </div>
       </main>
 

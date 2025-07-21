@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { signIn, useSession } from 'next-auth/react';
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function LoginPage() {
@@ -19,21 +19,23 @@ export default function LoginPage() {
 
   const { status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.replace('/'); // Always go to home
+      router.replace(callbackUrl); // Redirect to original destination
     }
-  }, [status, router]);
+  }, [status, router, callbackUrl]);
 
   if (status === 'loading') {
     return <div>Loading...</div>;
   }
 
   if (status === 'authenticated') {
-    return <div>Redirecting to home...</div>;
+    return <div>Redirecting...</div>;
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,11 +49,11 @@ export default function LoginPage() {
       redirect: false,
       email,
       password,
-      callbackUrl: '/',
+      callbackUrl: callbackUrl,
     });
     setLoading(false);
     if (res?.ok) {
-      router.push('/');
+      router.push(callbackUrl);
     } else {
       setError('Invalid email or password');
     }
@@ -62,11 +64,11 @@ export default function LoginPage() {
     setLoading(true);
     const res = await signIn('google', {
       redirect: false,
-      callbackUrl: '/',
+      callbackUrl: callbackUrl,
     });
     setLoading(false);
     if (res?.ok) {
-      router.push('/');
+      router.push(callbackUrl);
     } else {
       setError('Google sign-in failed. Please try again.');
     }
