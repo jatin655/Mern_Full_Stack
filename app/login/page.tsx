@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace("/dashboard"); // or "/"
+      router.replace("/"); // Redirect to home page
     }
   }, [status, router]);
 
@@ -39,11 +39,11 @@ export default function LoginPage() {
       redirect: false,
       email,
       password,
-      callbackUrl: '/dashboard',
+      callbackUrl: '/',
     });
     setLoading(false);
     if (res?.ok) {
-      router.push('/dashboard');
+      router.push('/');
     } else {
       setError('Invalid email or password');
     }
@@ -54,11 +54,11 @@ export default function LoginPage() {
     setLoading(true);
     const res = await signIn('google', {
       redirect: false,
-      callbackUrl: '/dashboard',
+      callbackUrl: '/',
     });
     setLoading(false);
     if (res?.ok) {
-      router.push('/dashboard');
+      router.push('/');
     } else {
       setError('Google sign-in failed. Please try again.');
     }
@@ -68,9 +68,9 @@ export default function LoginPage() {
     return <div>Loading...</div>;
   }
 
-  // If authenticated, don't render the login form (redirect will happen in useEffect)
+  // If authenticated, show a loading message while redirecting
   if (status === 'authenticated') {
-    return null;
+    return <div className="min-h-screen flex items-center justify-center text-white">Redirecting to home...</div>;
   }
 
   return (
