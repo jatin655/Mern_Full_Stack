@@ -1,14 +1,14 @@
 "use client";
 
-import { useSession, signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EnhancedFooter } from "@/components/enhanced-footer";
 import GooeyNav from "@/components/gooey-nav";
 import Particles from "@/components/particles-background";
-import { EnhancedFooter } from "@/components/enhanced-footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { signIn, useSession } from 'next-auth/react';
+import Link from "next/link";
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function LoginForm() {
   const navLinks = [
@@ -204,4 +204,29 @@ export default function LoginForm() {
                     id="password"
                     name="password"
                     required
-                    className="w-full px-3 py-2 border border-white/20 bg-white/5 text-white rounded-md shadow-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus
+                    className="w-full px-3 py-2 border border-white/20 bg-white/5 text-white rounded-md shadow-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors backdrop-blur-sm"
+                    placeholder="Enter your password"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-2.5 text-base font-medium bg-blue-600/60 hover:bg-blue-700/70 backdrop-blur-sm border border-blue-400/30 text-white font-semibold shadow-2xl flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <path
+                      fill="currentColor"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                  </svg>
+                  <span>{loading ? 'Signing In...' : 'Sign In'}</span>
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+      <EnhancedFooter />
+    </div>
+  );
+}
