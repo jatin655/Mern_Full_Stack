@@ -4,29 +4,26 @@ import { NextResponse } from 'next/server';
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
-    const isAuth = !!token;
     const path = req.nextUrl.pathname;
 
-    // Only protect /dashboard and /admin
-    if ((path.startsWith('/dashboard') || path.startsWith('/admin')) && !isAuth) {
-      const loginUrl = new URL('/login', req.url);
-      loginUrl.searchParams.set('callbackUrl', path);
-      return NextResponse.redirect(loginUrl);
+    // Only protect /admin
+    if (path.startsWith('/admin')) {
+      // If not authenticated or not admin, redirect to home
+      if (!token || (token as any)?.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', req.url));
+      }
     }
 
-    // Only for /admin, check for admin role
-    if (path.startsWith('/admin') && isAuth && (token as any)?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
-
+    // Allow all other routes
     return NextResponse.next();
   },
   {
     callbacks: {
       authorized: ({ token, req }) => {
         const path = req.nextUrl.pathname;
-        if (path.startsWith('/dashboard') || path.startsWith('/admin')) {
-          return !!token;
+        // Only require auth for /admin
+        if (path.startsWith('/admin')) {
+          return !!token && (token as any)?.role === 'admin';
         }
         return true;
       },
