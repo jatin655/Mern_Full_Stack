@@ -17,16 +17,24 @@ export default function LoginPage() {
     { label: "Admin", href: "/admin" },
   ];
 
-  const { data: session, status } = useSession();
+  const { status } = useSession();
+  const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/"); // Redirect to home page
+    if (status === 'authenticated') {
+      router.replace('/'); // Always go to home
     }
   }, [status, router]);
+
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+
+  if (status === 'authenticated') {
+    return <div>Redirecting to home...</div>;
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,15 +71,6 @@ export default function LoginPage() {
       setError('Google sign-in failed. Please try again.');
     }
   };
-
-  if (status === 'loading') {
-    return <div>Loading...</div>;
-  }
-
-  // If authenticated, show a loading message while redirecting
-  if (status === 'authenticated') {
-    return <div className="min-h-screen flex items-center justify-center text-white">Redirecting to home...</div>;
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-black">

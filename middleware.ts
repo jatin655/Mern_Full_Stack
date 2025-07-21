@@ -5,51 +5,33 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const isAuth = !!token;
-    const isAuthPage = req.nextUrl.pathname.startsWith('/login') || 
-                      req.nextUrl.pathname.startsWith('/register') ||
-                      req.nextUrl.pathname.startsWith('/forgot-password') ||
-                      req.nextUrl.pathname.startsWith('/reset-password');
+    const isAdmin = (token as any)?.role === 'admin';
+    const path = req.nextUrl.pathname;
 
-    // If user is not authenticated and trying to access protected routes
-    if (!isAuth && !isAuthPage) {
-      // Redirect to login page
-      const loginUrl = new URL('/login', req.url);
-      loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    // If user is authenticated and trying to access auth pages, redirect to dashboard
-    if (isAuth && isAuthPage) {
-      return NextResponse.redirect(new URL('/dashboard', req.url));
-    }
-
-    // Check admin access for admin routes
-    if (req.nextUrl.pathname.startsWith('/admin')) {
-      const userRole = (token as any)?.role;
-      if (userRole !== 'admin') {
-        // Redirect non-admin users to dashboard
+    // Only protect /dashboard and /admin
+    if (path.startsWith('/dashboard') || path.startsWith('/admin')) {
+      if (!isAuth) {
+        const loginUrl = new URL('/login', req.url);
+        loginUrl.searchParams.set('callbackUrl', path);
+        return NextResponse.redirect(loginUrl);
+      }
+      // If /admin, check for admin role
+      if (path.startsWith('/admin') && !isAdmin) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
 
+    // Allow all other routes (/, /about, /login, /register, /forgot-password, /reset-password, /api/*, etc.)
     return NextResponse.next();
   },
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Allow access to public routes
-        if (req.nextUrl.pathname === '/' || 
-            req.nextUrl.pathname.startsWith('/about') ||
-            req.nextUrl.pathname.startsWith('/api/')) {
-          return true;
-        }
-        
-        // Require authentication for protected routes
-        if (req.nextUrl.pathname.startsWith('/dashboard') || 
-            req.nextUrl.pathname.startsWith('/admin')) {
+        const path = req.nextUrl.pathname;
+        // Only require auth for /dashboard and /admin
+        if (path.startsWith('/dashboard') || path.startsWith('/admin')) {
           return !!token;
         }
-        
         return true;
       },
     },
@@ -58,14 +40,6 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
   ],
 }; 
