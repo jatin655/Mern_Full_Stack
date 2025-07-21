@@ -10,6 +10,7 @@ import { signOut, useSession } from 'next-auth/react';
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import SplineRobotPC from "../components/SplineRobotPC";
 import UsersList from './components/UsersList';
 
 export default function AdminDashboardPage() {
@@ -142,46 +143,51 @@ export default function AdminDashboardPage() {
               />
             </div>
 
-            {/* Welcome Card */}
-            <Card className="bg-black/5 backdrop-blur-[2px] border border-white/10 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold text-white drop-shadow-xl">Welcome, Admin!</CardTitle>
-                <CardDescription className="text-gray-200 drop-shadow-lg">
-                  You are logged in as: {currentUser.email}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-gray-200">
-                    This is the admin dashboard. You have full administrative privileges.
-                  </p>
-                  <div className="text-sm text-gray-300">
-                    <p>User Role: {currentUser.role}</p>
-                    <p>User Name: {currentUser.name}</p>
+            {/* Welcome Card and Spline Robot side by side */}
+            <div className="flex flex-row items-stretch">
+              <Card className="w-auto max-w-xl bg-black/70 rounded-2xl shadow-lg border-none">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold text-white drop-shadow-xl">Welcome, Admin!</CardTitle>
+                  <CardDescription className="text-gray-200 drop-shadow-lg">
+                    You are logged in as: {currentUser.email}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <p className="text-gray-200">
+                      This is the admin dashboard. You have full administrative privileges.
+                    </p>
+                    <div className="text-sm text-gray-300">
+                      <p>User Role: {currentUser.role}</p>
+                      <p>User Name: {currentUser.name}</p>
+                    </div>
+                    <div className="flex space-x-4">
+                      <Button 
+                        onClick={() => signOut({ callbackUrl: '/login' })}
+                        className="bg-red-600/60 hover:bg-red-700/70"
+                      >
+                        Sign Out
+                      </Button>
+                      <Button 
+                        asChild
+                        className="bg-blue-600/60 hover:bg-blue-700/70"
+                      >
+                        <Link href="/dashboard">Go to Dashboard</Link>
+                      </Button>
+                      <Button 
+                        asChild
+                        className="bg-purple-600/60 hover:bg-purple-700/70"
+                      >
+                        <Link href="/admin/users">Manage Users</Link>
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex space-x-4">
-                    <Button 
-                      onClick={() => signOut({ callbackUrl: '/login' })}
-                      className="bg-red-600/60 hover:bg-red-700/70"
-                    >
-                      Sign Out
-                    </Button>
-                    <Button 
-                      asChild
-                      className="bg-blue-600/60 hover:bg-blue-700/70"
-                    >
-                      <Link href="/dashboard">Go to Dashboard</Link>
-                    </Button>
-                    <Button 
-                      asChild
-                      className="bg-purple-600/60 hover:bg-purple-700/70"
-                    >
-                      <Link href="/admin/users">Manage Users</Link>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+              <div className="hidden md:flex items-center justify-center flex-grow h-[450px] ml-4 bg-black/70 rounded-2xl shadow-lg">
+                <SplineRobotPC />
+              </div>
+            </div>
 
             {/* Users Management Section */}
             <UsersList />

@@ -1,34 +1,33 @@
 'use client';
 
-import { EnhancedFooter } from "@/components/enhanced-footer";
-import GooeyNav from "@/components/gooey-nav";
-import Particles from "@/components/particles-background";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSession } from 'next-auth/react';
-import Link from "next/link";
-import { useRouter } from 'next/navigation';
+import { EnhancedFooter } from '@/components/enhanced-footer';
+import GooeyNav from '@/components/gooey-nav';
+import Particles from '@/components/particles-background';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Mail } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 
-export default function ForgotPasswordPage() {
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "Login", href: "/login" },
-    { label: "Register", href: "/register" },
-  ];
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Login', href: '/login' },
+  { label: 'Register', href: '/register' },
+];
 
-  const { data: session, status } = useSession();
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setIsLoading(true);
     setMessage('');
-    setLoading(true);
+    setError('');
 
     try {
       const response = await fetch('/api/forgot-password', {
@@ -42,26 +41,16 @@ export default function ForgotPasswordPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('Password reset link has been sent to your email address.');
-        setEmail('');
+        setMessage(data.message);
       } else {
-        setError(data.error || 'Failed to send reset email. Please try again.');
+        setError(data.error || 'Something went wrong');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError('Failed to send reset email. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
-
-  if (status === 'loading') {
-    return <div>Loading...</div>;
-  }
-
-  if (session) {
-    router.push('/dashboard');
-    return null;
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-black">
@@ -111,79 +100,66 @@ export default function ForgotPasswordPage() {
         <div className="relative z-10 w-full max-w-md mx-auto px-4">
           <Card className="shadow-2xl border-0 bg-black/5 backdrop-blur-[2px] border border-white/10">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-2xl font-bold text-white drop-shadow-2xl">Forgot Password</CardTitle>
+              <CardTitle className="text-2xl font-bold text-white drop-shadow-2xl animate-fade-in-up">
+                Forgot Password
+              </CardTitle>
               <CardDescription className="text-gray-100 drop-shadow-xl">
-                Enter your email address to receive a password reset link
+                Enter your email address and we'll send you a link to reset your password.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {error && (
-                <div className="p-3 bg-red-500/10 border border-red-400/20 rounded-md backdrop-blur-sm">
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <p className="text-sm text-red-300">{error}</p>
-                  </div>
-                </div>
-              )}
-              
-              {message && (
-                <div className="p-3 bg-green-500/10 border border-green-400/20 rounded-md backdrop-blur-sm">
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    <p className="text-sm text-green-300">{message}</p>
-                  </div>
-                </div>
-              )}
-
-              <form className="space-y-5" onSubmit={handleSubmit}>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-100 drop-shadow-lg">
+                  <label htmlFor="email" className="text-sm font-medium text-white">
                     Email Address
                   </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 border border-white/20 bg-white/5 text-white rounded-md shadow-sm placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors backdrop-blur-sm"
-                    placeholder="Enter your email address"
-                  />
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
                 </div>
+
+                {message && (
+                  <Alert className="border-green-200 bg-green-50">
+                    <AlertDescription className="text-green-800">
+                      {message}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {error && (
+                  <Alert className="border-red-200 bg-red-50">
+                    <AlertDescription className="text-red-800">
+                      {error}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <Button
                   type="submit"
-                  className="w-full py-2.5 text-base font-medium bg-blue-600/60 hover:bg-blue-700/70 backdrop-blur-sm border border-blue-400/30 text-white font-semibold shadow-2xl"
-                  disabled={loading}
+                  className="w-full"
+                  disabled={isLoading}
                 >
-                  {loading ? 'Sending...' : 'Send Reset Link'}
+                  {isLoading ? 'Sending...' : 'Send Reset Link'}
                 </Button>
-              </form>
-              <div className="text-center pt-4 border-t border-white/20">
-                <p className="text-sm text-gray-200 drop-shadow-lg">
-                  Remember your password?{' '}
+
+                <div className="text-center">
                   <Link
                     href="/login"
-                    className="text-blue-400 hover:text-blue-300 font-medium underline drop-shadow-lg"
+                    className="text-sm text-blue-400 hover:text-blue-300 font-medium underline drop-shadow-lg"
                   >
-                    Sign in here
+                    Back to Login
                   </Link>
-                </p>
-              </div>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </div>

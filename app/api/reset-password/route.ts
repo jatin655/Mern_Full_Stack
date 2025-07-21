@@ -24,10 +24,10 @@ export async function POST(request: NextRequest) {
     const db = client.db();
     const users = db.collection('users');
 
-    // Find user with this reset token and check if it's not expired
+    // Find user with the reset token
     const user = await users.findOne({
       resetToken: token,
-      resetTokenExpiry: { $gt: new Date() } // Token not expired
+      resetTokenExpiry: { $gt: new Date() }
     });
 
     if (!user) {
@@ -54,13 +54,15 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    console.log('Password reset successful for user:', user.email);
+
     return NextResponse.json(
       { message: 'Password reset successfully' },
       { status: 200 }
     );
 
   } catch (error) {
-    console.error('Password reset error:', error);
+    console.error('Reset password error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

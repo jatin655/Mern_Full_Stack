@@ -3,8 +3,9 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     const envVars = {
-      MAILGUN_SMTP_USERNAME: process.env.MAILGUN_SMTP_USERNAME || 'Not Set',
-      MAILGUN_SMTP_PASSWORD: process.env.MAILGUN_SMTP_PASSWORD ? 'Set' : 'Not Set',
+      SMTP_SERVER: process.env.SMTP_SERVER || 'Not Set',
+      SMTP_USER: process.env.SMTP_USER || 'Not Set',
+      SMTP_PASS: process.env.SMTP_PASS ? 'Set' : 'Not Set',
       NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'Not Set',
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'Set' : 'Not Set',
       MONGODB_URI: process.env.MONGODB_URI ? 'Set' : 'Not Set',

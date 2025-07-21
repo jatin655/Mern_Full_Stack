@@ -1,6 +1,7 @@
-import type { Metadata } from 'next'
-import ClientSessionProvider from './components/ClientSessionProvider'
-import './globals.css'
+import type { Metadata } from 'next';
+import Script from "next/script";
+import ClientSessionProvider from './components/ClientSessionProvider';
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'v0 App',
@@ -18,6 +19,11 @@ export default function RootLayout({
       <body>
         <ClientSessionProvider>
           {children}
+          <Script
+            type="module"
+            src="https://unpkg.com/@splinetool/viewer@1.10.33/build/spline-viewer.js"
+            strategy="afterInteractive"
+          />
         </ClientSessionProvider>
       </body>
     </html>
