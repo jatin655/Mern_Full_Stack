@@ -1,4 +1,5 @@
 import clientPromise from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { authOptions } from '../../auth/[...nextauth]/route';
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
         }
 
         const result = await users.updateOne(
-          { _id: userId },
+          { _id: new ObjectId(userId) },
           { $set: { role: newRole } }
         );
 
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const deleteResult = await users.deleteOne({ _id: userId });
+        const deleteResult = await users.deleteOne({ _id: new ObjectId(userId) });
 
         if (deleteResult.deletedCount === 0) {
           return NextResponse.json(

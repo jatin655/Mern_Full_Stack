@@ -120,7 +120,7 @@ export default function LoginForm() {
           />
         </div>
         <div className="relative z-10 w-full max-w-md mx-auto px-4">
-          <Card className="shadow-2xl border-0 bg-black/5 backdrop-blur-[2px] border border-white/10">
+          <Card className="shadow-2xl bg-black/5 backdrop-blur-[2px] border border-white/10">
             <CardHeader className="text-center pb-6">
               <CardTitle className="text-2xl font-bold text-white drop-shadow-2xl">Sign In</CardTitle>
               <CardDescription className="text-gray-100 drop-shadow-xl">
@@ -149,7 +149,7 @@ export default function LoginForm() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full py-2.5 text-base font-medium bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white font-semibold shadow-2xl flex items-center justify-center space-x-2"
+                className="w-full py-2.5 text-base bg-blue-600/60 hover:bg-blue-700/70 backdrop-blur-sm border border-blue-400/30 text-white font-semibold shadow-2xl flex items-center justify-center space-x-2"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -208,10 +208,31 @@ export default function LoginForm() {
                     placeholder="Enter your password"
                   />
                 </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <input
+                      id="remember-me"
+                      name="remember-me"
+                      type="checkbox"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-200">
+                      Remember me
+                    </label>
+                  </div>
+                  <div className="text-sm">
+                    <Link
+                      href="/forgot-password"
+                      className="text-blue-400 hover:text-blue-300 font-medium underline drop-shadow-lg"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                </div>
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 text-base font-medium bg-blue-600/60 hover:bg-blue-700/70 backdrop-blur-sm border border-blue-400/30 text-white font-semibold shadow-2xl flex items-center justify-center space-x-2"
+                  className="w-full py-2.5 text-base bg-blue-600/60 hover:bg-blue-700/70 backdrop-blur-sm border border-blue-400/30 text-white font-semibold shadow-2xl flex items-center justify-center space-x-2"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path

@@ -131,16 +131,18 @@ export default function AdminDashboardPage() {
                 to={{ opacity: 1, y: 0 }}
                 textAlign="center"
               />
-              <SplitText
-                text="Manage users, roles, and system settings"
-                className="text-lg text-gray-100"
-                splitType="words"
-                delay={100}
-                duration={0.6}
-                from={{ opacity: 0, y: 40 }}
-                to={{ opacity: 1, y: 0 }}
-                textAlign="center"
-              />
+              <div className="mt-2">
+                <SplitText
+                  text="Manage users, roles, and system settings"
+                  className="text-lg text-gray-100"
+                  splitType="words"
+                  delay={100}
+                  duration={0.6}
+                  from={{ opacity: 0, y: 40 }}
+                  to={{ opacity: 1, y: 0 }}
+                  textAlign="center"
+                />
+              </div>
             </div>
 
             {/* Welcome Card and Spline Robot side by side */}

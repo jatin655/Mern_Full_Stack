@@ -102,7 +102,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-8">
-          <div className="max-w-7xl mx-auto space-y-8">
+          <div className="space-y-8">
             <div className="space-y-4 text-center">
               <SplitText
                 text="Welcome to Your Dashboard"
@@ -114,20 +114,22 @@ export default function DashboardPage() {
                 to={{ opacity: 1, y: 0 }}
                 textAlign="center"
               />
-              <SplitText
-                text="Manage your account and explore the application"
-                className="text-lg text-gray-100"
-                splitType="words"
-                delay={100}
-                duration={0.6}
-                from={{ opacity: 0, y: 40 }}
-                to={{ opacity: 1, y: 0 }}
-                textAlign="center"
-              />
+              <div className="mt-2">
+                <SplitText
+                  text="Manage your account and explore the application"
+                  className="text-lg text-gray-100"
+                  splitType="words"
+                  delay={100}
+                  duration={0.6}
+                  from={{ opacity: 0, y: 40 }}
+                  to={{ opacity: 1, y: 0 }}
+                  textAlign="center"
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="bg-black/5 backdrop-blur-[2px] border border-white/10 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 w-full">
+              <Card className="bg-black/5 backdrop-blur-[2px] border border-white/10 shadow-sm flex-1 w-full">
                 <CardHeader>
                   <CardTitle className="text-white">User Profile</CardTitle>
                   <CardDescription className="text-gray-200">Your account information</CardDescription>
@@ -161,7 +163,7 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-black/5 backdrop-blur-[2px] border border-white/10 shadow-sm">
+              <Card className="bg-black/5 backdrop-blur-[2px] border border-white/10 shadow-sm flex-1 w-full">
                 <CardHeader>
                   <CardTitle className="text-white">Quick Actions</CardTitle>
                   <CardDescription className="text-gray-200">Common tasks and navigation</CardDescription>
@@ -179,30 +181,6 @@ export default function DashboardPage() {
                         <Link href="/admin">Admin Panel</Link>
                       </Button>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-black/5 backdrop-blur-[2px] border border-white/10 shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-white">Account Settings</CardTitle>
-                  <CardDescription className="text-gray-200">Manage your account</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <Button variant="outline" className="w-full bg-white/5 hover:bg-white/10 text-white">
-                      Edit Profile
-                    </Button>
-                    <Button variant="outline" className="w-full bg-white/5 hover:bg-white/10 text-white">
-                      Change Password
-                    </Button>
-                    <Button 
-                      onClick={() => signOut({ callbackUrl: '/login' })}
-                      variant="outline" 
-                      className="w-full bg-red-600/20 hover:bg-red-700/30 text-red-300"
-                    >
-                      Sign Out
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
