@@ -8,11 +8,11 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   try {
     console.log('Preparing to send password reset email...');
     console.log('SMTP_SERVER:', process.env.SMTP_SERVER);
-    console.log('SMTP_USER:', process.env.SMTP_USER);
-    console.log('SMTP_PASS exists:', !!process.env.SMTP_PASS);
+    console.log('MAILGUN_SMTP_USERNAME:', process.env.MAILGUN_SMTP_USERNAME);
+    console.log('MAILGUN_SMTP_PASSWORD exists:', !!process.env.MAILGUN_SMTP_PASSWORD);
     
     // Check if environment variables are set
-    if (!process.env.SMTP_SERVER || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    if (!process.env.SMTP_SERVER || !process.env.MAILGUN_SMTP_USERNAME || !process.env.MAILGUN_SMTP_PASSWORD) {
       console.error('❌ Missing SMTP environment variables');
       return {
         success: false,
@@ -26,8 +26,8 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
       port: 587,
       secure: false, // Mailgun uses TLS on port 587
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.MAILGUN_SMTP_USERNAME,
+        pass: process.env.MAILGUN_SMTP_PASSWORD,
       },
     });
 
