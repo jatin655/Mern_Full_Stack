@@ -30,6 +30,7 @@ export default function UsersList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const isAdmin = session?.user && (session.user as any).role === 'admin';
 
   useEffect(() => {
     fetchUsers();
@@ -216,27 +217,28 @@ export default function UsersList() {
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  {user.role === 'user' ? (
-                    <Button
-                      size="sm"
-                      onClick={() => handleRoleUpdate(user._id, 'admin')}
-                      disabled={actionLoading === user._id}
-                      className="bg-purple-600/60 hover:bg-purple-700/70"
-                    >
-                      {actionLoading === user._id ? 'Updating...' : 'Make Admin'}
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      onClick={() => handleRoleUpdate(user._id, 'user')}
-                      disabled={actionLoading === user._id}
-                      className="bg-blue-600/60 hover:bg-blue-700/70"
-                    >
-                      {actionLoading === user._id ? 'Updating...' : 'Make User'}
-                    </Button>
+                  {isAdmin && user.email !== session?.user?.email && (
+                    user.role === 'user' ? (
+                      <Button
+                        size="sm"
+                        onClick={() => handleRoleUpdate(user._id, 'admin')}
+                        disabled={actionLoading === user._id}
+                        className="bg-purple-600/60 hover:bg-purple-700/70"
+                      >
+                        {actionLoading === user._id ? 'Updating...' : 'Make Admin'}
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => handleRoleUpdate(user._id, 'user')}
+                        disabled={actionLoading === user._id}
+                        className="bg-blue-600/60 hover:bg-blue-700/70"
+                      >
+                        {actionLoading === user._id ? 'Updating...' : 'Make User'}
+                      </Button>
+                    )
                   )}
-                  
-                  {user.email !== session?.user?.email && (
+                  {isAdmin && user.email !== session?.user?.email && (
                     <Button
                       size="sm"
                       variant="outline"

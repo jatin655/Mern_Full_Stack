@@ -59,7 +59,7 @@ export default function AboutPage() {
 
             {/* Client-side auth component */}
             <div className="flex items-center min-w-0 justify-end">
-              <ClientAboutContent />
+            <ClientAboutContent />
             </div>
 
             {/* Mobile Menu Button */}

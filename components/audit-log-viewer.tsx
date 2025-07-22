@@ -1,11 +1,10 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 
 interface AuditLogEntry {
-  id: string
+  _id: string
   timestamp: string
   user: string
   action: string
@@ -16,59 +15,27 @@ interface AuditLogEntry {
 }
 
 export function AuditLogViewer() {
-  // Sample audit log data - in a real app, this would come from your API
-  const [auditLogs] = useState<AuditLogEntry[]>([
-    {
-      id: "1",
-      timestamp: "2025-01-19T14:30:00Z",
-      user: "admin@example.com",
-      action: "USER_ROLE_CHANGED",
-      details: "Changed user john.doe@example.com role from user to admin",
-      ipAddress: "192.168.1.100",
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      severity: "high",
-    },
-    {
-      id: "2",
-      timestamp: "2025-01-19T14:25:00Z",
-      user: "admin@example.com",
-      action: "USER_LOGIN",
-      details: "Successful admin login",
-      ipAddress: "192.168.1.100",
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      severity: "low",
-    },
-    {
-      id: "3",
-      timestamp: "2025-01-19T14:20:00Z",
-      user: "jane.smith@example.com",
-      action: "USER_DELETED",
-      details: "Deleted user account for mike.johnson@example.com",
-      ipAddress: "192.168.1.101",
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-      severity: "high",
-    },
-    {
-      id: "4",
-      timestamp: "2025-01-19T14:15:00Z",
-      user: "system",
-      action: "BACKUP_COMPLETED",
-      details: "Daily database backup completed successfully",
-      ipAddress: "127.0.0.1",
-      userAgent: "System/1.0",
-      severity: "low",
-    },
-    {
-      id: "5",
-      timestamp: "2025-01-19T14:10:00Z",
-      user: "jane.smith@example.com",
-      action: "SETTINGS_UPDATED",
-      details: "Updated system notification settings",
-      ipAddress: "192.168.1.101",
-      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-      severity: "medium",
-    },
-  ])
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    async function fetchLogs() {
+      setLoading(true)
+      setError("")
+      try {
+        const res = await fetch("/api/audit-logs")
+        if (!res.ok) throw new Error("Failed to fetch audit logs")
+        const data = await res.json()
+        setAuditLogs(data.logs || [])
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch audit logs")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchLogs()
+  }, [])
 
   const formatTimestamp = (timestamp: string) => {
     return new Date(timestamp).toLocaleString("en-US", {
@@ -175,6 +142,11 @@ export function AuditLogViewer() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {loading ? (
+          <div className="text-white">Loading audit logs...</div>
+        ) : error ? (
+          <div className="text-red-400">{error}</div>
+        ) : (
         <div className="space-y-4">
           {/* Desktop View */}
           <div className="hidden md:block">
@@ -201,7 +173,7 @@ export function AuditLogViewer() {
                 </thead>
                 <tbody className="divide-y divide-white/20">
                   {auditLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-white/5 transition-colors">
+                    <tr key={log._id} className="hover:bg-white/5 transition-colors">
                       <td className="px-4 py-3 text-sm text-gray-200 drop-shadow-lg">
                         {formatTimestamp(log.timestamp)}
                       </td>
@@ -236,7 +208,7 @@ export function AuditLogViewer() {
           {/* Mobile View */}
           <div className="md:hidden space-y-4">
             {auditLogs.map((log) => (
-              <div key={log.id} className="bg-white/5 backdrop-blur-sm rounded-lg p-4 space-y-3 border border-white/10">
+              <div key={log._id} className="bg-white/5 backdrop-blur-sm rounded-lg p-4 space-y-3 border border-white/10">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <div className="text-gray-300">{getActionIcon(log.action)}</div>
@@ -262,17 +234,8 @@ export function AuditLogViewer() {
               </div>
             ))}
           </div>
-
-          {/* Load More Button */}
-          <div className="pt-4 text-center">
-            <Button
-              variant="outline"
-              className="bg-white/5 hover:bg-white/10 text-white backdrop-blur-sm border border-white/20"
-            >
-              Load More Entries
-            </Button>
-          </div>
         </div>
+        )}
       </CardContent>
     </Card>
   )

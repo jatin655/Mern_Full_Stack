@@ -1,3 +1,4 @@
+import { logAuditEvent } from '@/lib/audit-log';
 import clientPromise from '@/lib/mongodb';
 import bcrypt from 'bcryptjs';
 import NextAuth, { AuthOptions } from 'next-auth';
@@ -77,7 +78,7 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }: any) {
+    async signIn({ user, account, profile, req }: any) {
       // Handle Google sign-in
       if (account?.provider === 'google') {
         try {
@@ -106,7 +107,16 @@ export const authOptions: AuthOptions = {
           return false;
         }
       }
-      
+      // Log successful sign-in (for both credentials and Google)
+      if (user?.email) {
+        await logAuditEvent({
+          user: user.email,
+          action: 'USER_LOGIN',
+          details: `Successful login for ${user.email}`,
+          severity: 'low',
+          req,
+        });
+      }
       return true;
     },
     async jwt({ token, user, account }: any) {
@@ -128,6 +138,21 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
+  events: {
+    async signOut({ token, session, req }: any) {
+      // Log sign out event
+      const email = token?.email || session?.user?.email;
+      if (email) {
+        await logAuditEvent({
+          user: email,
+          action: 'USER_LOGOUT',
+          details: `User ${email} logged out`,
+          severity: 'low',
+          req,
+        });
+      }
+    },
+  },
   session: {
     strategy: 'jwt' as const,
   },
@@ -140,3 +165,4 @@ export const authOptions: AuthOptions = {
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
+

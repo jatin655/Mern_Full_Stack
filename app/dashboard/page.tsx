@@ -1,5 +1,6 @@
 'use client';
 
+import { AuditLogViewer } from "@/components/audit-log-viewer";
 import { EnhancedFooter } from "@/components/enhanced-footer";
 import GooeyNav from "@/components/gooey-nav";
 import Particles from "@/components/particles-background";
@@ -184,6 +185,9 @@ export default function DashboardPage() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+            <div className="mt-12">
+              <AuditLogViewer />
             </div>
           </div>
         </div>
